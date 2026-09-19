@@ -1,0 +1,6 @@
+{
+  "name": "Global Pulse News",
+  "description": "Independent news network covering District Shangla, Khyber Pakhtunkhwa, and Pakistan nationwide news, petrol prices, weather, sports, and community welfare.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

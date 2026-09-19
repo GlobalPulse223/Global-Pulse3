@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "Article": {
+      "title": "Article",
+      "description": "A news article.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "author": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "imageUrl": { "type": "string", "format": "uri" }
+      },
+      "required": ["title", "content", "author", "createdAt", "imageUrl"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A user comment on an article.",
+      "type": "object",
+      "properties": {
+        "articleId": { "type": "string" },
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["articleId", "userId", "text", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A registered user.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "subscriptionTier": { "type": "string", "enum": ["free", "premium"] }
+      },
+      "required": ["email", "subscriptionTier"]
+    },
+    "Alert": {
+      "title": "Alert",
+      "description": "A real-time news alert.",
+      "type": "object",
+      "properties": {
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/articles/{articleId}": {
+      "schema": "Article",
+      "description": "Collection of articles."
+    },
+    "/articles/{articleId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Collection of comments for an article."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of users."
+    },
+    "/alerts/{alertId}": {
+      "schema": "Alert",
+      "description": "Collection of alerts."
+    }
+  }
+}

@@ -1,0 +1,9 @@
+<svg viewBox="0 0 160 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="40" height="40" x="4" y="4" rx="8" fill="#0F172A"/>
+  <circle cx="24" cy="24" r="14" stroke="#94A3B8" stroke-width="1.5" stroke-opacity="0.5"/>
+  <ellipse cx="24" cy="24" rx="7" ry="14" stroke="#94A3B8" stroke-width="1.5" stroke-opacity="0.7"/>
+  <path d="M12 24H18L21 16L24 31L27 20L30 24H36" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="26" fill="#0F172A" font-family="Georgia, serif" font-size="16" font-weight="bold" letter-spacing="-0.5">GLOBAL PULSE</text>
+  <rect x="52" y="30" width="34" height="12" rx="2" fill="#DC2626"/>
+  <text x="55" y="39" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="8" font-weight="bold" letter-spacing="1">NEWS</text>
+</svg>
