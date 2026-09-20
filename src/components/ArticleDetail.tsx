@@ -6,6 +6,8 @@ import { db } from '../firebase';
 import { Article } from '../types';
 import { formatNewsDate } from '../utils/dateFormatter';
 
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000';
+
 export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -93,8 +95,11 @@ export default function ArticleDetail() {
       <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="relative w-full h-80 sm:h-96 bg-gray-100 overflow-hidden">
           <img 
-            src={article.imageUrl} 
+            src={article.imageUrl || FALLBACK_IMAGE} 
             alt={article.title} 
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE;
+            }}
             className="w-full h-full object-cover" 
             referrerPolicy="no-referrer" 
           />

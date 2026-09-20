@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
-import { Mail, MapPin, Phone, ExternalLink } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -64,16 +64,12 @@ export default function Footer() {
                 contact@globalpulsenews.com
               </a>
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Phone className="w-4 h-4 text-red-500 flex-shrink-0" />
-              <span>+92 (0996) 550-241</span>
-            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© 2026 Global Pulse News. All rights reserved. Reproduction without attribution is prohibited.</p>
+          <p>© {new Date().getFullYear()} Global Pulse News. All rights reserved. Reproduction without attribution is prohibited.</p>
           <div className="flex items-center gap-4">
             <Link to="/about" className="hover:text-slate-300">About</Link>
             <span>•</span>

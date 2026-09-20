@@ -6,6 +6,8 @@ interface ArticleCardProps {
   onClick: (article: Article) => void;
 }
 
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000';
+
 export default function ArticleCard({ article, onClick }: ArticleCardProps) {
   return (
     <button 
@@ -14,8 +16,11 @@ export default function ArticleCard({ article, onClick }: ArticleCardProps) {
     >
       <div className="relative w-full h-48 overflow-hidden bg-gray-100">
         <img 
-          src={article.imageUrl} 
+          src={article.imageUrl || FALLBACK_IMAGE} 
           alt={article.title} 
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE;
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
           referrerPolicy="no-referrer" 
         />

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { collection, addDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { 
   Database, 
   Menu, 
@@ -30,6 +30,26 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
+  // Dynamically formatted date that automatically updates every day / minute
+  const formatLiveDate = () => {
+    return new Date().toLocaleDateString('en-GB', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
+  const [todayDateline, setTodayDateline] = useState(formatLiveDate);
+
+  useEffect(() => {
+    // Automatically check and update the dateline every 60 seconds
+    const interval = setInterval(() => {
+      setTodayDateline(formatLiveDate());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'About Us', path: '/about' },
@@ -50,7 +70,7 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 font-medium text-slate-200">
-              <Calendar className="w-3 h-3 text-red-500" /> Saturday, 19 September 2026
+              <Calendar className="w-3 h-3 text-red-500" /> {todayDateline}
             </span>
             <span className="text-slate-500 hidden sm:inline">•</span>
             <span className="flex items-center gap-1 text-slate-300">
@@ -95,12 +115,12 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
 
         {/* Actions (Seed Articles & Mobile Menu) */}
         <div className="flex items-center gap-2">
-          {/* Seed 10 Articles Button */}
+          {/* Seed Articles Button */}
           <button
             id="seed-articles-button"
             disabled={isSeeding}
             onClick={onSeed}
-            title="Populate database with 10 verified news stories including Petrol price, Shangla weather, and sports"
+            title="Populate database with verified news stories including Petrol price, Shangla weather, highway project, agriculture, satellite internet, and sports"
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${
               seedSuccess
                 ? 'bg-emerald-600 text-white hover:bg-emerald-700'
@@ -110,7 +130,7 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
             {seedSuccess ? (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>10 Stories Seeded!</span>
+                <span>All Articles Seeded!</span>
               </>
             ) : isSeeding ? (
               <>
@@ -120,8 +140,8 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
             ) : (
               <>
                 <Database className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Seed 10+ Articles</span>
-                <span className="sm:hidden">Seed 10</span>
+                <span className="hidden sm:inline">Seed Articles ({initialNewsArticles.length})</span>
+                <span className="sm:hidden">Seed ({initialNewsArticles.length})</span>
               </>
             )}
           </button>
@@ -168,7 +188,7 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
             <TrendingUp className="w-3 h-3" /> BREAKING WIRE
           </span>
           <p className="truncate text-slate-800 font-medium">
-            Petrol & diesel prices revised for fortnight • Shangla weather alert: heavy precipitation forecast for Alpuri & Besham • Pakistan Cricket squad announced
+            Shangla students win Gold at National STEM Olympiad • 24/7 all-terrain mobile clinics deployed in remote valleys • Lilownai apiculture drive launched • Highway project underway
           </p>
         </div>
       </div>
@@ -179,24 +199,7 @@ function NavigationBar({ onSeed, isSeeding, seedSuccess }: { onSeed: () => void;
 export default function App() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
-
-  useEffect(() => {
-    // Check if initial articles need to be seeded on load
-    const checkAndSeed = async () => {
-      try {
-        const articlesRef = collection(db, 'articles');
-        const snapshot = await getDocs(articlesRef);
-        // If there are fewer than 5 articles, auto-seed the full rich dataset
-        if (snapshot.docs.length < 5) {
-          console.log('Fewer than 5 articles detected. Auto-seeding 10 full articles...');
-          await seedArticles();
-        }
-      } catch (e) {
-        console.error('Initial check error:', e);
-      }
-    };
-    checkAndSeed();
-  }, []);
+  const hasRunInitialSync = useRef(false);
 
   const seedArticles = async () => {
     if (isSeeding) return;
@@ -206,14 +209,16 @@ export default function App() {
       const articlesRef = collection(db, 'articles');
       const snapshot = await getDocs(articlesRef);
       
-      console.log('Clearing existing articles for fresh seed...');
-      await Promise.all(snapshot.docs.map(doc => deleteDoc(doc.ref)));
+      console.log('Cleaning up existing documents to eliminate duplicates...');
+      // Remove all existing documents to guarantee a clean, duplicate-free state
+      await Promise.all(snapshot.docs.map(d => deleteDoc(d.ref)));
       
-      console.log('Seeding 10 authentic articles...');
+      console.log(`Setting ${initialNewsArticles.length} canonical articles with unique IDs...`);
       for (const article of initialNewsArticles) {
-        await addDoc(articlesRef, article);
+        const docRef = doc(db, 'articles', article.id);
+        await setDoc(docRef, article);
       }
-      console.log('Seeding complete. 10 articles written.');
+      console.log(`Seeding complete. ${initialNewsArticles.length} unique articles written.`);
       setSeedSuccess(true);
       setTimeout(() => setSeedSuccess(false), 4000);
     } catch (e) {
@@ -222,6 +227,37 @@ export default function App() {
       setIsSeeding(false);
     }
   };
+
+  useEffect(() => {
+    if (hasRunInitialSync.current) return;
+    hasRunInitialSync.current = true;
+
+    // Check if database contains duplicates, missing, or mismatched dates
+    const checkAndSync = async () => {
+      try {
+        const articlesRef = collection(db, 'articles');
+        const snapshot = await getDocs(articlesRef);
+        
+        const validIds = new Set(initialNewsArticles.map(a => a.id));
+        const currentDocIds = snapshot.docs.map(d => d.id);
+        const hasMismatchedDocs = 
+          currentDocIds.length !== initialNewsArticles.length ||
+          currentDocIds.some(id => !validIds.has(id)) ||
+          snapshot.docs.some(d => {
+            const canonical = initialNewsArticles.find(a => a.id === d.id);
+            return canonical && canonical.createdAt !== d.data()?.createdAt;
+          });
+
+        if (hasMismatchedDocs) {
+          console.log('Detected outdated dates or uncanonical articles in database. Syncing canonical articles...');
+          await seedArticles();
+        }
+      } catch (e) {
+        console.error('Initial check error:', e);
+      }
+    };
+    checkAndSync();
+  }, []);
 
   return (
     <BrowserRouter>

@@ -35,11 +35,25 @@ export default function ArticleList() {
     console.log('Setting up onSnapshot for articles...');
     const unsubscribe = onSnapshot(q, (snapshot) => {
       console.log('onSnapshot fired, docs:', snapshot.docs.length);
-      const fetchedArticles = snapshot.docs.map(doc => ({
+      const rawArticles = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      } as Article)).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setArticles(fetchedArticles);
+      } as Article));
+
+      // Strictly deduplicate by title so duplicate articles never appear twice
+      const uniqueMap = new Map<string, Article>();
+      for (const a of rawArticles) {
+        const normalizedTitle = (a.title || '').trim().toLowerCase();
+        if (normalizedTitle && !uniqueMap.has(normalizedTitle)) {
+          uniqueMap.set(normalizedTitle, a);
+        }
+      }
+
+      const deduplicatedArticles = Array.from(uniqueMap.values()).sort(
+        (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      );
+
+      setArticles(deduplicatedArticles);
       setLoading(false);
     }, (error) => {
       console.error('onSnapshot error:', error);

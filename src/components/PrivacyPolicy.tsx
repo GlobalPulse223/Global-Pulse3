@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
           Privacy Policy
         </h1>
         <p className="text-gray-600 text-base md:text-lg">
-          Last Updated: 19 September 2026 • Global Pulse News Editorial Board
+          Last Updated: 20 September 2026 • Global Pulse News Editorial Board
         </p>
       </div>
 
